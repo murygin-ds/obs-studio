@@ -368,6 +368,11 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->keepRecordStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->replayWhileStreaming, CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->keepReplayStreamStops,CHECK_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->replayNotifySound,    CHECK_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->replayStartSound,     EDIT_CHANGED,   GENERAL_CHANGED);
+	HookWidget(ui->replayStopSound,      EDIT_CHANGED,   GENERAL_CHANGED);
+	HookWidget(ui->replaySavedSound,     EDIT_CHANGED,   GENERAL_CHANGED);
+	HookWidget(ui->replayNotifyOverlay,  CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayEnabled,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayWhenStarted,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayAlways,     CHECK_CHANGED,  GENERAL_CHANGED);
@@ -1322,6 +1327,19 @@ void OBSBasicSettings::LoadGeneralSettings()
 	bool keepReplayStreamStops =
 		config_get_bool(App()->GetUserConfig(), "BasicWindow", "KeepReplayBufferStreamStops");
 	ui->keepReplayStreamStops->setChecked(keepReplayStreamStops);
+
+	bool replayNotifySound = config_get_bool(App()->GetUserConfig(), "BasicWindow", "ReplayBufferSoundNotify");
+	ui->replayNotifySound->setChecked(replayNotifySound);
+
+	ui->replayStartSound->setText(
+		QT_UTF8(config_get_string(App()->GetUserConfig(), "BasicWindow", "ReplayBufferStartSound")));
+	ui->replayStopSound->setText(
+		QT_UTF8(config_get_string(App()->GetUserConfig(), "BasicWindow", "ReplayBufferStopSound")));
+	ui->replaySavedSound->setText(
+		QT_UTF8(config_get_string(App()->GetUserConfig(), "BasicWindow", "ReplayBufferSavedSound")));
+
+	bool replayNotifyOverlay = config_get_bool(App()->GetUserConfig(), "BasicWindow", "ReplayBufferOverlayNotify");
+	ui->replayNotifyOverlay->setChecked(replayNotifyOverlay);
 
 	bool systemTrayEnabled = config_get_bool(App()->GetUserConfig(), "BasicWindow", "SysTrayEnabled");
 	ui->systemTrayEnabled->setChecked(systemTrayEnabled);
@@ -3168,6 +3186,26 @@ void OBSBasicSettings::SaveGeneralSettings()
 				ui->keepReplayStreamStops->isChecked());
 	}
 
+	if (WidgetChanged(ui->replayNotifySound)) {
+		config_set_bool(App()->GetUserConfig(), "BasicWindow", "ReplayBufferSoundNotify",
+				ui->replayNotifySound->isChecked());
+	}
+	if (WidgetChanged(ui->replayStartSound)) {
+		config_set_string(App()->GetUserConfig(), "BasicWindow", "ReplayBufferStartSound",
+				  QT_TO_UTF8(ui->replayStartSound->text()));
+	}
+	if (WidgetChanged(ui->replayStopSound)) {
+		config_set_string(App()->GetUserConfig(), "BasicWindow", "ReplayBufferStopSound",
+				  QT_TO_UTF8(ui->replayStopSound->text()));
+	}
+	if (WidgetChanged(ui->replaySavedSound)) {
+		config_set_string(App()->GetUserConfig(), "BasicWindow", "ReplayBufferSavedSound",
+				  QT_TO_UTF8(ui->replaySavedSound->text()));
+	}
+	if (WidgetChanged(ui->replayNotifyOverlay)) {
+		config_set_bool(App()->GetUserConfig(), "BasicWindow", "ReplayBufferOverlayNotify",
+				ui->replayNotifyOverlay->isChecked());
+	}
 	if (WidgetChanged(ui->systemTrayEnabled)) {
 		config_set_bool(App()->GetUserConfig(), "BasicWindow", "SysTrayEnabled",
 				ui->systemTrayEnabled->isChecked());
@@ -4063,6 +4101,32 @@ void OBSBasicSettings::on_advOutFFPathBrowse_clicked()
 	}
 
 	ui->advOutFFRecPath->setText(dir);
+}
+
+void OBSBasicSettings::BrowseReplaySound(QLineEdit *edit)
+{
+	QString file = OpenFile(this, QTStr("Basic.Settings.General.ReplayBufferNotify.SelectSound"), edit->text(),
+				"Audio Files (*.wav *.aif *.aiff *.mp3 *.m4a *.ogg *.flac);;All Files (*)");
+	if (file.isEmpty()) {
+		return;
+	}
+
+	edit->setText(file);
+}
+
+void OBSBasicSettings::on_replayStartSoundBrowse_clicked()
+{
+	BrowseReplaySound(ui->replayStartSound);
+}
+
+void OBSBasicSettings::on_replayStopSoundBrowse_clicked()
+{
+	BrowseReplaySound(ui->replayStopSound);
+}
+
+void OBSBasicSettings::on_replaySavedSoundBrowse_clicked()
+{
+	BrowseReplaySound(ui->replaySavedSound);
 }
 
 void OBSBasicSettings::on_advOutEncoder_currentIndexChanged()

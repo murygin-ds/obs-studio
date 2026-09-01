@@ -57,6 +57,7 @@ class OBSBasicTransform;
 class OBSLogViewer;
 class OBSMissingFiles;
 class OBSProjector;
+class OSDNotification;
 class VolumeControl;
 #ifdef YOUTUBE_ENABLED
 class YouTubeAppDock;
@@ -1042,6 +1043,11 @@ signals:
 private:
 	bool replayBufferStopping = false;
 	std::string lastReplay;
+
+	enum class ReplayBufferNotification { Started, Stopped, Saved };
+	QPointer<OSDNotification> replayBufferOverlay;
+
+	void NotifyReplayBuffer(ReplayBufferNotification notification);
 
 public slots:
 	void ShowReplayBufferPauseWarning();

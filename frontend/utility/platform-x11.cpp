@@ -26,6 +26,7 @@
 
 #include <QDBusConnection>
 #include <QDBusReply>
+#include <QProcess>
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
 #include <condition_variable>
@@ -324,4 +325,17 @@ bool HighContrastEnabled()
 	}
 
 	return reply.value().toUInt() != 0;
+}
+
+void PlayNotificationSound(const char *path)
+{
+	const QStringList args{QString::fromUtf8(path)};
+
+	for (const char *player : {"paplay", "pw-play", "aplay"}) {
+		if (QProcess::startDetached(QString::fromLatin1(player), args)) {
+			return;
+		}
+	}
+
+	QApplication::beep();
 }

@@ -367,6 +367,11 @@ void OBSApp::InitUserConfigDefaults()
 	config_set_default_bool(userConfig, "BasicWindow", "KeepRecordingWhenStreamStops", false);
 	config_set_default_bool(userConfig, "BasicWindow", "SysTrayEnabled", true);
 	config_set_default_bool(userConfig, "BasicWindow", "SysTrayWhenStarted", false);
+	config_set_default_bool(userConfig, "BasicWindow", "ReplayBufferSoundNotify", false);
+	config_set_default_bool(userConfig, "BasicWindow", "ReplayBufferOverlayNotify", false);
+	config_set_default_string(userConfig, "BasicWindow", "ReplayBufferStartSound", "");
+	config_set_default_string(userConfig, "BasicWindow", "ReplayBufferStopSound", "");
+	config_set_default_string(userConfig, "BasicWindow", "ReplayBufferSavedSound", "");
 	config_set_default_bool(userConfig, "BasicWindow", "SaveProjectors", false);
 	config_set_default_bool(userConfig, "BasicWindow", "ShowTransitions", true);
 	config_set_default_bool(userConfig, "BasicWindow", "ShowListboxToolbars", true);

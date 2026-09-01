@@ -19,6 +19,7 @@
 
 #include "OBSBasic.hpp"
 
+#include <components/OSDNotification.hpp>
 #include <components/UIValidation.hpp>
 
 #include <qt-wrappers.hpp>
@@ -149,6 +150,8 @@ void OBSBasic::ReplayBufferStart()
 	OnActivate();
 
 	blog(LOG_INFO, REPLAY_BUFFER_START);
+
+	NotifyReplayBuffer(ReplayBufferNotification::Started);
 }
 
 void OBSBasic::ReplayBufferSave()
@@ -188,6 +191,8 @@ void OBSBasic::ReplayBufferSaved()
 
 	OnEvent(OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVED);
 
+	NotifyReplayBuffer(ReplayBufferNotification::Saved);
+
 	AutoRemux(QT_UTF8(path.c_str()));
 }
 
@@ -204,6 +209,8 @@ void OBSBasic::ReplayBufferStop(int code)
 	}
 
 	blog(LOG_INFO, REPLAY_BUFFER_STOP);
+
+	NotifyReplayBuffer(ReplayBufferNotification::Stopped);
 
 	if (code == OBS_OUTPUT_UNSUPPORTED && isVisible()) {
 		OBSMessageBox::critical(this, QTStr("Output.RecordFail.Title"), QTStr("Output.RecordFail.Unsupported"));
@@ -235,4 +242,49 @@ bool OBSBasic::ReplayBufferActive()
 		return false;
 	}
 	return outputHandler->ReplayBufferActive();
+}
+
+void OBSBasic::NotifyReplayBuffer(ReplayBufferNotification notification)
+{
+	static const struct {
+		const char *soundKey;
+		const char *defaultSound;
+		const char *text;
+		QColor accent;
+	} infos[] = {
+		{"ReplayBufferStartSound", "sounds/replay-buffer-start.wav", "Basic.Main.ReplayBufferNotify.Started",
+		 QColor(64, 156, 255)},
+		{"ReplayBufferStopSound", "sounds/replay-buffer-stop.wav", "Basic.Main.ReplayBufferNotify.Stopped",
+		 QColor(255, 149, 0)},
+		{"ReplayBufferSavedSound", "sounds/replay-buffer-saved.wav", "Basic.Main.ReplayBufferNotify.Saved",
+		 QColor(52, 199, 89)},
+	};
+	const auto &info = infos[static_cast<size_t>(notification)];
+
+	config_t *config = App()->GetUserConfig();
+
+	if (config_get_bool(config, "BasicWindow", "ReplayBufferSoundNotify")) {
+		const char *custom = config_get_string(config, "BasicWindow", info.soundKey);
+		std::string path = custom ? custom : "";
+
+		if (path.empty()) {
+			std::string bundled;
+			if (GetDataFilePath(info.defaultSound, bundled)) {
+				path = bundled;
+			} else {
+				blog(LOG_WARNING, "Replay buffer notification sound '%s' not found", info.defaultSound);
+			}
+		}
+
+		if (!path.empty()) {
+			PlayNotificationSound(path.c_str());
+		}
+	}
+
+	if (config_get_bool(config, "BasicWindow", "ReplayBufferOverlayNotify")) {
+		if (!replayBufferOverlay) {
+			replayBufferOverlay = new OSDNotification();
+		}
+		replayBufferOverlay->Show(QTStr(info.text), info.accent);
+	}
 }

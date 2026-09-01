@@ -198,6 +198,7 @@ private:
 
 	/* general */
 	void LoadLanguageList();
+	void BrowseReplaySound(QLineEdit *edit);
 	void LoadThemeList(bool firstLoad);
 	void LoadBranchesList();
 
@@ -358,6 +359,9 @@ private slots:
 	void on_simpleOutputBrowse_clicked();
 	void on_advOutRecPathBrowse_clicked();
 	void on_advOutFFPathBrowse_clicked();
+	void on_replayStartSoundBrowse_clicked();
+	void on_replayStopSoundBrowse_clicked();
+	void on_replaySavedSoundBrowse_clicked();
 	void on_advOutEncoder_currentIndexChanged();
 	void on_advOutRecEncoder_currentIndexChanged(int idx);
 	void on_advOutFFIgnoreCompat_stateChanged(int state);

@@ -63,6 +63,8 @@ target_sources(
     components/OBSPreviewScalingLabel.hpp
     components/OBSSourceLabel.cpp
     components/OBSSourceLabel.hpp
+    components/OSDNotification.cpp
+    components/OSDNotification.hpp
     components/SceneTree.cpp
     components/SceneTree.hpp
     components/SilentUpdateCheckBox.hpp

@@ -30,6 +30,7 @@
 #ifdef YOUTUBE_ENABLED
 #include <docks/YouTubeAppDock.hpp>
 #endif
+#include <components/OSDNotification.hpp>
 #include <dialogs/NameDialog.hpp>
 #include <dialogs/OBSAbout.hpp>
 #include <dialogs/OBSBasicAdvAudio.hpp>
@@ -1448,6 +1449,7 @@ void OBSBasic::applicationShutdown() noexcept
 	delete shortcutFilter;
 	delete programOptions;
 	delete program;
+	delete replayBufferOverlay;
 
 	/* XXX: any obs data must be released before calling obs_shutdown.
 	 * currently, we can't automate this with C++ RAII because of the

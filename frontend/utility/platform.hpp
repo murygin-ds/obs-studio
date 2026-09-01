@@ -38,6 +38,9 @@ bool SetDisplayAffinitySupported(void);
 
 bool HighContrastEnabled();
 
+/* Plays a short sound file asynchronously (used for UI notifications) */
+void PlayNotificationSound(const char *path);
+
 enum TaskbarOverlayStatus {
 	TaskbarOverlayStatusInactive,
 	TaskbarOverlayStatusActive,
@@ -101,6 +104,7 @@ void InstallNSApplicationSubclass();
 void InstallNSThreadLocks();
 void disableColorSpaceConversion(QWidget *window);
 void SetMacOSDarkMode(bool dark);
+void SetOverlayWindowBehavior(QWidget *window);
 
 MacPermissionStatus CheckPermissionWithPrompt(MacPermissionType type, bool prompt_for_permission);
 #define CheckPermission(x) CheckPermissionWithPrompt(x, false)

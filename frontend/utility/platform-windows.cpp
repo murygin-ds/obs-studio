@@ -31,6 +31,7 @@
 #include <sstream>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <mmsystem.h>
 
 using namespace std;
 
@@ -185,6 +186,15 @@ void SetAlwaysOnTop(QWidget *window, bool enable)
 	HWND hwnd = (HWND)window->winId();
 	SetWindowPos(hwnd, enable ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0,
 		     SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+}
+
+void PlayNotificationSound(const char *path)
+{
+	/* PlaySound keeps referencing the file name while playing asynchronously */
+	static wstring soundPath;
+
+	soundPath = QString::fromUtf8(path).toStdWString();
+	PlaySoundW(soundPath.c_str(), nullptr, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 }
 
 void SetProcessPriority(const char *priority)

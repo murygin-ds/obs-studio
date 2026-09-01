@@ -134,6 +134,34 @@ bool SetDisplayAffinitySupported(void)
     return false;
 }
 
+void SetOverlayWindowBehavior(QWidget *window)
+{
+    NSView *view = (__bridge NSView *) reinterpret_cast<void *>(window->winId());
+    NSWindow *nsWindow = view.window;
+
+    nsWindow.level = NSScreenSaverWindowLevel;
+    nsWindow.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces |
+                                  NSWindowCollectionBehaviorFullScreenAuxiliary | NSWindowCollectionBehaviorStationary |
+                                  NSWindowCollectionBehaviorIgnoresCycle;
+    nsWindow.hidesOnDeactivate = NO;
+    nsWindow.ignoresMouseEvents = YES;
+}
+
+void PlayNotificationSound(const char *path)
+{
+    static NSSound *currentSound;
+
+    NSSound *sound = [[NSSound alloc] initWithContentsOfFile:@(path) byReference:YES];
+    if (!sound) {
+        blog(LOG_WARNING, "Failed to load notification sound '%s'", path);
+        return;
+    }
+
+    [currentSound stop];
+    currentSound = sound;
+    [currentSound play];
+}
+
 typedef void (*set_int_t)(int);
 
 void EnableOSXVSync(bool enable)
