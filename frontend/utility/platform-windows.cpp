@@ -26,7 +26,10 @@
 #include <Dwmapi.h>
 #include <audiopolicy.h>
 #include <mmdeviceapi.h>
+#include <knownfolders.h>
 #include <shellapi.h>
+#include <shlguid.h>
+#include <shobjidl.h>
 #include <shlobj.h>
 #include <sstream>
 
@@ -310,6 +313,68 @@ std::string GetFullscreenApplicationName()
 	}
 
 	return name;
+}
+
+static wstring GetStartupShortcutPath()
+{
+	wchar_t *folder = nullptr;
+	if (FAILED(SHGetKnownFolderPath(FOLDERID_Startup, 0, nullptr, &folder))) {
+		return L"";
+	}
+
+	wstring path = folder;
+	CoTaskMemFree(folder);
+	return path + L"\\OBS Studio.lnk";
+}
+
+bool LaunchAtLoginSupported()
+{
+	return true;
+}
+
+bool IsLaunchAtLoginEnabled()
+{
+	wstring link = GetStartupShortcutPath();
+	return !link.empty() && GetFileAttributesW(link.c_str()) != INVALID_FILE_ATTRIBUTES;
+}
+
+bool SetLaunchAtLogin(bool enable)
+{
+	wstring link = GetStartupShortcutPath();
+	if (link.empty()) {
+		return false;
+	}
+
+	if (!enable) {
+		return DeleteFileW(link.c_str()) || GetLastError() == ERROR_FILE_NOT_FOUND;
+	}
+
+	/* The shortcut keeps the working directory next to the executable,
+	 * which OBS needs to find its data files. */
+	wchar_t exePath[MAX_PATH] = {};
+	if (!GetModuleFileNameW(nullptr, exePath, _countof(exePath))) {
+		return false;
+	}
+	wstring workingDir = exePath;
+	workingDir.resize(workingDir.find_last_of(L"\\/"));
+
+	ComPtr<IShellLinkW> shellLink;
+	ComPtr<IPersistFile> file;
+
+	if (FAILED(CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLinkW,
+				    (void **)shellLink.Assign()))) {
+		return false;
+	}
+
+	shellLink->SetPath(exePath);
+	shellLink->SetWorkingDirectory(workingDir.c_str());
+	shellLink->SetDescription(L"OBS Studio");
+
+	if (FAILED(shellLink->QueryInterface(IID_IPersistFile, (void **)file.Assign()))) {
+		return false;
+	}
+
+	return SUCCEEDED(file->Save(link.c_str(), TRUE));
 }
 
 void SetOverlayWindowBehavior(QWidget *window)

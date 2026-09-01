@@ -249,6 +249,7 @@ private:
 	bool loaded = false;
 	bool isClosing_ = false;
 	bool isClosePromptOpen_ = false;
+	bool exitRequested_ = false;
 	bool handledShutdown = false;
 
 	// TODO: Remove, orphaned variable
@@ -318,8 +319,11 @@ public:
 
 	void saveAll();
 	bool shouldPromptForClose();
+	bool ShouldCloseToTray();
+	bool AskCloseToTray();
 	inline bool isClosing() { return isClosing_; }
 	inline bool isClosePromptOpen() { return isClosePromptOpen_; }
+	inline void SetExitRequested() { exitRequested_ = true; }
 	void closeWindow();
 
 protected:
@@ -613,6 +617,9 @@ private slots:
 	void ToggleAlwaysOnTop();
 
 	void SetShowing(bool showing);
+
+	/* Exits even when closing the window would otherwise minimize to the tray */
+	void RequestExit();
 
 	void ToggleShowHide();
 

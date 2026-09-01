@@ -48,6 +48,11 @@ void SetOverlayWindowBehavior(QWidget *window);
  * Only asks the OS about the foreground window; the process itself is never touched. */
 std::string GetFullscreenApplicationName();
 
+/* Launching OBS automatically when the user logs in */
+bool LaunchAtLoginSupported();
+bool IsLaunchAtLoginEnabled();
+bool SetLaunchAtLogin(bool enable);
+
 enum TaskbarOverlayStatus {
 	TaskbarOverlayStatusInactive,
 	TaskbarOverlayStatusActive,

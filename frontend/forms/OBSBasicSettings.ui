@@ -274,6 +274,20 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="launchAtLogin">
+                     <property name="text">
+                      <string>Basic.Settings.General.LaunchAtLogin</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QCheckBox" name="startReplayBufferOnLaunch">
+                     <property name="text">
+                      <string>Basic.Settings.General.StartReplayBufferOnLaunch</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                 </item>
@@ -1058,6 +1072,16 @@
                      </property>
                      <property name="text">
                       <string>Basic.Settings.General.SystemTrayHideMinimize</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="systemTrayCloseToTray">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>Basic.Settings.General.SysTrayCloseToTray</string>
                      </property>
                     </widget>
                    </item>
@@ -9519,6 +9543,22 @@
     <hint type="destinationlabel">
      <x>251</x>
      <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>systemTrayEnabled</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>systemTrayCloseToTray</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>933</x>
+     <y>579</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>933</x>
+     <y>648</y>
     </hint>
    </hints>
   </connection>

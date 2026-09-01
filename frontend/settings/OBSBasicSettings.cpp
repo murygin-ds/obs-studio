@@ -28,6 +28,7 @@
 #include <docks/YouTubeAppDock.hpp>
 #endif
 #include <utility/audio-encoders.hpp>
+#include <utility/platform.hpp>
 #include <utility/BaseLexer.hpp>
 #include <utility/FFmpegCodec.hpp>
 #include <utility/FFmpegFormat.hpp>
@@ -358,6 +359,8 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->updateChannelBox,     COMBO_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->enableAutoUpdates,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->openStatsOnStartup,   CHECK_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->launchAtLogin,        CHECK_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->startReplayBufferOnLaunch, CHECK_CHANGED, GENERAL_CHANGED);
 	HookWidget(ui->hideOBSFromCapture,   CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->warnBeforeStreamStart,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->warnBeforeStreamStop, CHECK_CHANGED,  GENERAL_CHANGED);
@@ -374,6 +377,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->systemTrayEnabled,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayWhenStarted,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayAlways,     CHECK_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->systemTrayCloseToTray,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->saveProjectors,       CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->closeProjectors,      CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->snappingEnabled,      CHECK_CHANGED,  GENERAL_CHANGED);
@@ -1299,6 +1303,14 @@ void OBSBasicSettings::LoadGeneralSettings()
 	bool openStatsOnStartup = config_get_bool(main->Config(), "General", "OpenStatsOnStartup");
 	ui->openStatsOnStartup->setChecked(openStatsOnStartup);
 
+	bool launchAtLoginSupported = LaunchAtLoginSupported();
+	ui->launchAtLogin->setVisible(launchAtLoginSupported);
+	ui->launchAtLogin->setChecked(launchAtLoginSupported && IsLaunchAtLoginEnabled());
+
+	bool startReplayBufferOnLaunch =
+		config_get_bool(App()->GetUserConfig(), "BasicWindow", "StartReplayBufferOnLaunch");
+	ui->startReplayBufferOnLaunch->setChecked(startReplayBufferOnLaunch);
+
 #if defined(_WIN32)
 	if (ui->hideOBSFromCapture) {
 		bool hideWindowFromCapture =
@@ -1353,6 +1365,9 @@ void OBSBasicSettings::LoadGeneralSettings()
 
 	bool systemTrayAlways = config_get_bool(App()->GetUserConfig(), "BasicWindow", "SysTrayMinimizeToTray");
 	ui->systemTrayAlways->setChecked(systemTrayAlways);
+
+	bool systemTrayCloseToTray = config_get_bool(App()->GetUserConfig(), "BasicWindow", "SysTrayCloseToTray");
+	ui->systemTrayCloseToTray->setChecked(systemTrayCloseToTray);
 
 	bool saveProjectors = config_get_bool(App()->GetUserConfig(), "BasicWindow", "SaveProjectors");
 	ui->saveProjectors->setChecked(saveProjectors);
@@ -3100,6 +3115,14 @@ void OBSBasicSettings::SaveGeneralSettings()
 	if (WidgetChanged(ui->openStatsOnStartup)) {
 		config_set_bool(main->Config(), "General", "OpenStatsOnStartup", ui->openStatsOnStartup->isChecked());
 	}
+	if (WidgetChanged(ui->launchAtLogin) && !SetLaunchAtLogin(ui->launchAtLogin->isChecked())) {
+		blog(LOG_WARNING, "Failed to %s launching OBS at login",
+		     ui->launchAtLogin->isChecked() ? "enable" : "disable");
+	}
+	if (WidgetChanged(ui->startReplayBufferOnLaunch)) {
+		config_set_bool(App()->GetUserConfig(), "BasicWindow", "StartReplayBufferOnLaunch",
+				ui->startReplayBufferOnLaunch->isChecked());
+	}
 	if (WidgetChanged(ui->snappingEnabled)) {
 		config_set_bool(App()->GetUserConfig(), "BasicWindow", "SnappingEnabled",
 				ui->snappingEnabled->isChecked());
@@ -3229,6 +3252,11 @@ void OBSBasicSettings::SaveGeneralSettings()
 				ui->systemTrayWhenStarted->isChecked());
 	}
 
+	if (WidgetChanged(ui->systemTrayCloseToTray)) {
+		config_set_bool(App()->GetUserConfig(), "BasicWindow", "SysTrayCloseToTray",
+				ui->systemTrayCloseToTray->isChecked());
+		config_set_bool(App()->GetUserConfig(), "General", "CloseToTrayAsked", true);
+	}
 	if (WidgetChanged(ui->systemTrayAlways)) {
 		config_set_bool(App()->GetUserConfig(), "BasicWindow", "SysTrayMinimizeToTray",
 				ui->systemTrayAlways->isChecked());

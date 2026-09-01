@@ -23,6 +23,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import <AppKit/AppKit.h>
+#import <ServiceManagement/ServiceManagement.h>
 #import <dlfcn.h>
 
 using namespace std;
@@ -194,6 +195,32 @@ std::string GetFullscreenApplicationName()
         return "";
     }
     return app.localizedName.UTF8String;
+}
+
+bool LaunchAtLoginSupported()
+{
+    return isInBundle();
+}
+
+bool IsLaunchAtLoginEnabled()
+{
+    return isInBundle() && SMAppService.mainAppService.status == SMAppServiceStatusEnabled;
+}
+
+bool SetLaunchAtLogin(bool enable)
+{
+    if (!isInBundle()) {
+        return false;
+    }
+
+    NSError *error = nil;
+    BOOL ok = enable ? [SMAppService.mainAppService registerAndReturnError:&error]
+                     : [SMAppService.mainAppService unregisterAndReturnError:&error];
+    if (!ok) {
+        blog(LOG_WARNING, "Failed to %s login item: %s", enable ? "register" : "unregister",
+             error.localizedDescription.UTF8String);
+    }
+    return ok;
 }
 
 void PlayNotificationSound(const char *path)

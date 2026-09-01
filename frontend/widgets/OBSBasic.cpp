@@ -495,6 +495,7 @@ OBSBasic::OBSBasic(QWidget *parent) : OBSMainWindow(parent), undo_s(ui), ui(new 
 #else
 	renameScene->setShortcut({Qt::Key_F2});
 	renameSource->setShortcut({Qt::Key_F2});
+	connect(ui->actionE_xit, &QAction::triggered, this, &OBSBasic::RequestExit);
 #endif
 
 #ifdef __linux__
@@ -1414,6 +1415,18 @@ void OBSBasic::OnFirstLoad()
 	if (showLogViewerOnStartup) {
 		on_actionViewCurrentLog_triggered();
 	}
+
+	bool startReplayBuffer = config_get_bool(App()->GetUserConfig(), "BasicWindow", "StartReplayBufferOnLaunch");
+	if (startReplayBuffer && !safe_mode) {
+		blog(LOG_INFO, "Starting replay buffer due to startup setting");
+		QMetaObject::invokeMethod(this, &OBSBasic::StartReplayBuffer, Qt::QueuedConnection);
+	}
+}
+
+void OBSBasic::RequestExit()
+{
+	exitRequested_ = true;
+	close();
 }
 
 OBSBasic::~OBSBasic() {}
@@ -1729,6 +1742,13 @@ void OBSBasic::closeEvent(QCloseEvent *event)
 		QTimer::singleShot(1000, this, &OBSBasic::close);
 		return;
 	}
+
+	if (!exitRequested_ && !restart && ShouldCloseToTray()) {
+		event->ignore();
+		SetShowing(false);
+		return;
+	}
+	exitRequested_ = false;
 
 	if (remux && !remux->close()) {
 		event->ignore();

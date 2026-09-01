@@ -19,6 +19,9 @@
 
 #include "OBSBasic.hpp"
 
+#include <QMessageBox>
+#include <QPushButton>
+
 extern bool opt_minimize_tray;
 
 void OBSBasic::SystemTrayInit()
@@ -81,7 +84,7 @@ void OBSBasic::SystemTrayInit()
 	connect(sysTrayRecord, &QAction::triggered, this, &OBSBasic::RecordActionTriggered);
 	connect(sysTrayReplayBuffer.data(), &QAction::triggered, this, &OBSBasic::ReplayBufferActionTriggered);
 	connect(sysTrayVirtualCam.data(), &QAction::triggered, this, &OBSBasic::VirtualCamActionTriggered);
-	connect(exit, &QAction::triggered, this, &OBSBasic::close);
+	connect(exit, &QAction::triggered, this, &OBSBasic::RequestExit);
 }
 
 void OBSBasic::IconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -145,6 +148,42 @@ void OBSBasic::SystemTray(bool firstStarted)
 bool OBSBasic::sysTrayMinimizeToTray()
 {
 	return config_get_bool(App()->GetUserConfig(), "BasicWindow", "SysTrayMinimizeToTray");
+}
+
+bool OBSBasic::ShouldCloseToTray()
+{
+	if (!trayIcon || !trayIcon->isVisible() || !QSystemTrayIcon::isSystemTrayAvailable()) {
+		return false;
+	}
+
+	config_t *config = App()->GetUserConfig();
+
+	if (!config_get_bool(config, "General", "CloseToTrayAsked")) {
+		bool closeToTray = AskCloseToTray();
+		config_set_bool(config, "General", "CloseToTrayAsked", true);
+		config_set_bool(config, "BasicWindow", "SysTrayCloseToTray", closeToTray);
+		config_save_safe(config, "tmp", nullptr);
+		return closeToTray;
+	}
+
+	return config_get_bool(config, "BasicWindow", "SysTrayCloseToTray");
+}
+
+bool OBSBasic::AskCloseToTray()
+{
+	isClosePromptOpen_ = true;
+
+	QMessageBox msgbox(this);
+	msgbox.setWindowTitle(QTStr("Basic.CloseToTray.Title"));
+	msgbox.setText(QTStr("Basic.CloseToTray.Text"));
+	msgbox.setIcon(QMessageBox::Question);
+	QPushButton *minimize = msgbox.addButton(QTStr("Basic.CloseToTray.Minimize"), QMessageBox::AcceptRole);
+	msgbox.addButton(QTStr("Exit"), QMessageBox::RejectRole);
+	msgbox.setDefaultButton(minimize);
+	msgbox.exec();
+
+	isClosePromptOpen_ = false;
+	return msgbox.clickedButton() == minimize;
 }
 
 void OBSBasic::updateSysTrayProjectorMenu()

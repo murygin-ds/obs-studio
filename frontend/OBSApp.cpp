@@ -377,6 +377,9 @@ void OBSApp::InitUserConfigDefaults()
 	config_set_default_int(userConfig, "BasicWindow", "NotifyOverlayDuration", 3);
 	config_set_default_bool(userConfig, "BasicWindow", "OutputPerApplicationFolders", false);
 	config_set_default_string(userConfig, "BasicWindow", "OutputDesktopFolderName", "Desktop");
+	config_set_default_bool(userConfig, "BasicWindow", "StartReplayBufferOnLaunch", false);
+	config_set_default_bool(userConfig, "BasicWindow", "SysTrayCloseToTray", false);
+	config_set_default_bool(userConfig, "General", "CloseToTrayAsked", false);
 	config_set_default_bool(userConfig, "BasicWindow", "SaveProjectors", false);
 	config_set_default_bool(userConfig, "BasicWindow", "ShowTransitions", true);
 	config_set_default_bool(userConfig, "BasicWindow", "ShowListboxToolbars", true);
@@ -1486,6 +1489,12 @@ QStyle *OBSApp::GetInvisibleCursorStyle()
 // caring where they are coming from (e.g. plugins).
 bool OBSApp::notify(QObject *receiver, QEvent *e)
 {
+	if (receiver == this && e->type() == QEvent::Quit) {
+		if (OBSBasic *main = static_cast<OBSBasic *>(GetMainWindow())) {
+			main->SetExitRequested();
+		}
+	}
+
 	QWidget *w;
 	QWindow *window;
 	int windowType;

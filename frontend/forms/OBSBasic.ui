@@ -2274,21 +2274,5 @@
   <include location="obs.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>actionE_xit</sender>
-   <signal>triggered()</signal>
-   <receiver>OBSBasic</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>463</x>
-     <y>351</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
 </ui>

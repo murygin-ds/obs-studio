@@ -31,4 +31,5 @@ target_link_libraries(
     "$<LINK_LIBRARY:FRAMEWORK,AppKit.framework>"
     "$<LINK_LIBRARY:FRAMEWORK,ApplicationServices.framework>"
     "$<LINK_LIBRARY:FRAMEWORK,AVFoundation.framework>"
+    "$<LINK_LIBRARY:FRAMEWORK,ServiceManagement.framework>"
 )

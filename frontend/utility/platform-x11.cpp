@@ -26,7 +26,12 @@
 
 #include <QDBusConnection>
 #include <QDBusReply>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QProcess>
+#include <QStandardPaths>
+#include <QTextStream>
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
 #include <condition_variable>
@@ -348,4 +353,49 @@ void SetOverlayWindowBehavior(QWidget *window)
 std::string GetFullscreenApplicationName()
 {
 	return "";
+}
+
+static QString AutostartFilePath()
+{
+	return QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) +
+	       "/autostart/com.obsproject.Studio.desktop";
+}
+
+bool LaunchAtLoginSupported()
+{
+	return true;
+}
+
+bool IsLaunchAtLoginEnabled()
+{
+	return QFile::exists(AutostartFilePath());
+}
+
+bool SetLaunchAtLogin(bool enable)
+{
+	const QString path = AutostartFilePath();
+
+	if (!enable) {
+		return !QFile::exists(path) || QFile::remove(path);
+	}
+
+	QString exec = qEnvironmentVariableIsSet("FLATPAK_ID")
+			       ? QString("flatpak run %1").arg(qEnvironmentVariable("FLATPAK_ID"))
+			       : QString("\"%1\"").arg(QCoreApplication::applicationFilePath());
+
+	QDir().mkpath(QFileInfo(path).absolutePath());
+
+	QFile file(path);
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		return false;
+	}
+
+	QTextStream out(&file);
+	out << "[Desktop Entry]\n"
+	    << "Type=Application\n"
+	    << "Name=OBS Studio\n"
+	    << "Exec=" << exec << "\n"
+	    << "Icon=com.obsproject.Studio\n"
+	    << "X-GNOME-Autostart-enabled=true\n";
+	return true;
 }
