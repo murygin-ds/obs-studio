@@ -14,7 +14,7 @@ class OSDNotification : public QWidget {
 public:
 	explicit OSDNotification(QWidget *parent = nullptr);
 
-	void Show(const QString &text, const QColor &accentColor, int durationMs = 2500);
+	void Show(const QString &text, const QColor &accentColor, int durationMs);
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
@@ -23,6 +23,7 @@ private:
 	QLabel *label;
 	QTimer hideTimer;
 	QColor accent;
+	bool translucent;
 
 	QRect TargetScreenGeometry() const;
 };

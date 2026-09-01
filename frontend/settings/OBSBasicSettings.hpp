@@ -362,6 +362,9 @@ private slots:
 	void on_replayStartSoundBrowse_clicked();
 	void on_replayStopSoundBrowse_clicked();
 	void on_replaySavedSoundBrowse_clicked();
+	void on_replayStartTest_clicked();
+	void on_replayStopTest_clicked();
+	void on_replaySavedTest_clicked();
 	void on_advOutEncoder_currentIndexChanged();
 	void on_advOutRecEncoder_currentIndexChanged(int idx);
 	void on_advOutFFIgnoreCompat_stateChanged(int state);

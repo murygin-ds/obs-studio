@@ -244,28 +244,55 @@ bool OBSBasic::ReplayBufferActive()
 	return outputHandler->ReplayBufferActive();
 }
 
-void OBSBasic::NotifyReplayBuffer(ReplayBufferNotification notification)
+namespace {
+struct ReplayBufferNotifyInfo {
+	const char *name;
+	const char *configKey;
+	const char *defaultSound;
+	const char *text;
+	QColor accent;
+};
+
+const ReplayBufferNotifyInfo &GetReplayBufferNotifyInfo(OBSBasic::ReplayBufferNotification notification)
 {
-	static const struct {
-		const char *soundKey;
-		const char *defaultSound;
-		const char *text;
-		QColor accent;
-	} infos[] = {
-		{"ReplayBufferStartSound", "sounds/replay-buffer-start.wav", "Basic.Main.ReplayBufferNotify.Started",
+	static const ReplayBufferNotifyInfo infos[] = {
+		{"started", "Start", "sounds/replay-buffer-start.wav", "Basic.Main.ReplayBufferNotify.Started",
 		 QColor(64, 156, 255)},
-		{"ReplayBufferStopSound", "sounds/replay-buffer-stop.wav", "Basic.Main.ReplayBufferNotify.Stopped",
+		{"stopped", "Stop", "sounds/replay-buffer-stop.wav", "Basic.Main.ReplayBufferNotify.Stopped",
 		 QColor(255, 149, 0)},
-		{"ReplayBufferSavedSound", "sounds/replay-buffer-saved.wav", "Basic.Main.ReplayBufferNotify.Saved",
+		{"saved", "Saved", "sounds/replay-buffer-saved.wav", "Basic.Main.ReplayBufferNotify.Saved",
 		 QColor(52, 199, 89)},
 	};
-	const auto &info = infos[static_cast<size_t>(notification)];
+	return infos[static_cast<size_t>(notification)];
+}
+} // namespace
 
+void OBSBasic::NotifyReplayBuffer(ReplayBufferNotification notification)
+{
+	const ReplayBufferNotifyInfo &info = GetReplayBufferNotifyInfo(notification);
 	config_t *config = App()->GetUserConfig();
 
-	if (config_get_bool(config, "BasicWindow", "ReplayBufferSoundNotify")) {
-		const char *custom = config_get_string(config, "BasicWindow", info.soundKey);
-		std::string path = custom ? custom : "";
+	const std::string toggleKey = std::string("ReplayBufferNotify") + info.configKey;
+	const std::string pathKey = std::string("ReplayBuffer") + info.configKey + "Sound";
+
+	bool playSound = config_get_bool(config, "BasicWindow", (toggleKey + "Sound").c_str());
+	bool showOverlay = config_get_bool(config, "BasicWindow", (toggleKey + "Overlay").c_str());
+	const char *soundPath = config_get_string(config, "BasicWindow", pathKey.c_str());
+	int durationMs = static_cast<int>(config_get_int(config, "BasicWindow", "ReplayBufferOverlayDuration")) * 1000;
+
+	ShowReplayBufferNotification(notification, playSound, showOverlay, QT_UTF8(soundPath), durationMs);
+}
+
+void OBSBasic::ShowReplayBufferNotification(ReplayBufferNotification notification, bool playSound, bool showOverlay,
+					    const QString &soundPath, int overlayDurationMs)
+{
+	const ReplayBufferNotifyInfo &info = GetReplayBufferNotifyInfo(notification);
+
+	blog(LOG_INFO, "Replay buffer notification '%s': sound=%s, overlay=%s", info.name, playSound ? "on" : "off",
+	     showOverlay ? "on" : "off");
+
+	if (playSound) {
+		std::string path = QT_TO_UTF8(soundPath);
 
 		if (path.empty()) {
 			std::string bundled;
@@ -281,10 +308,11 @@ void OBSBasic::NotifyReplayBuffer(ReplayBufferNotification notification)
 		}
 	}
 
-	if (config_get_bool(config, "BasicWindow", "ReplayBufferOverlayNotify")) {
+	if (showOverlay) {
 		if (!replayBufferOverlay) {
 			replayBufferOverlay = new OSDNotification();
 		}
-		replayBufferOverlay->Show(QTStr(info.text), info.accent);
+		replayBufferOverlay->Show(QTStr(info.text), info.accent,
+					  overlayDurationMs < 1000 ? 1000 : overlayDurationMs);
 	}
 }

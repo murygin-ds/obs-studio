@@ -145,6 +145,7 @@ void SetOverlayWindowBehavior(QWidget *window)
                                   NSWindowCollectionBehaviorIgnoresCycle;
     nsWindow.hidesOnDeactivate = NO;
     nsWindow.ignoresMouseEvents = YES;
+    nsWindow.sharingType = NSWindowSharingNone;
 }
 
 void PlayNotificationSound(const char *path)

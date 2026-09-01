@@ -29,6 +29,9 @@
 #include <shellapi.h>
 #include <shlobj.h>
 #include <sstream>
+
+#include <QFile>
+#include <QHash>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
@@ -190,11 +193,32 @@ void SetAlwaysOnTop(QWidget *window, bool enable)
 
 void PlayNotificationSound(const char *path)
 {
-	/* PlaySound keeps referencing the file name while playing asynchronously */
-	static wstring soundPath;
+	/* PlaySound keeps reading the buffer while playing asynchronously, so
+	 * decoded files stay cached for the lifetime of the process. */
+	static QHash<QString, QByteArray> cache;
 
-	soundPath = QString::fromUtf8(path).toStdWString();
-	PlaySoundW(soundPath.c_str(), nullptr, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
+	const QString file = QString::fromUtf8(path);
+	auto it = cache.find(file);
+	if (it == cache.end()) {
+		QFile f(file);
+		if (!f.open(QIODevice::ReadOnly)) {
+			blog(LOG_WARNING, "Failed to open notification sound '%s'", path);
+			return;
+		}
+		it = cache.insert(file, f.readAll());
+	}
+
+	if (!PlaySoundW(reinterpret_cast<LPCWSTR>(it.value().constData()), nullptr,
+			SND_MEMORY | SND_ASYNC | SND_NODEFAULT)) {
+		blog(LOG_WARNING, "Failed to play notification sound '%s'", path);
+	}
+}
+
+void SetOverlayWindowBehavior(QWidget *window)
+{
+	HWND hwnd = (HWND)window->winId();
+	SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+	SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
 }
 
 void SetProcessPriority(const char *priority)

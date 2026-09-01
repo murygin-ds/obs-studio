@@ -13,27 +13,54 @@
 #include "moc_OSDNotification.cpp"
 
 namespace {
-constexpr int screenMargin = 24;
-constexpr int cornerRadius = 10;
-constexpr int accentBarWidth = 6;
+constexpr int screenMargin = 40;
+constexpr int cornerRadius = 12;
+constexpr int dotSize = 16;
+constexpr int paddingX = 28;
+constexpr int paddingY = 20;
+constexpr int borderWidth = 2;
+
+Qt::WindowFlags OverlayFlags()
+{
+	Qt::WindowFlags flags = Qt::ToolTip | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint |
+				Qt::WindowDoesNotAcceptFocus;
+#ifndef _WIN32
+	/* Click-through and translucency both need a layered window on Windows,
+	 * which does not reliably show up on top of fullscreen games, so the
+	 * Windows popup stays a plain opaque window. */
+	flags |= Qt::WindowTransparentForInput;
+#endif
+	return flags;
+}
+
+bool UseTranslucency()
+{
+#ifdef _WIN32
+	return false;
+#else
+	return true;
+#endif
+}
 } // namespace
 
 OSDNotification::OSDNotification(QWidget *parent)
-	: QWidget(parent, Qt::ToolTip | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint |
-				  Qt::WindowDoesNotAcceptFocus | Qt::WindowTransparentForInput),
-	  label(new QLabel(this))
+	: QWidget(parent, OverlayFlags()),
+	  label(new QLabel(this)),
+	  translucent(UseTranslucency())
 {
-	setAttribute(Qt::WA_TranslucentBackground);
+	if (translucent) {
+		setAttribute(Qt::WA_TranslucentBackground);
+	}
 	setAttribute(Qt::WA_ShowWithoutActivating);
 
 	QFont font = label->font();
-	font.setPointSize(16);
+	font.setPointSize(20);
 	font.setBold(true);
 	label->setFont(font);
 	label->setStyleSheet("color: white; background: transparent;");
 
 	QHBoxLayout *layout = new QHBoxLayout(this);
-	layout->setContentsMargins(accentBarWidth + 18, 14, 22, 14);
+	layout->setContentsMargins(paddingX + dotSize + 14, paddingY, paddingX, paddingY);
 	layout->addWidget(label);
 
 	hideTimer.setSingleShot(true);
@@ -51,9 +78,7 @@ void OSDNotification::Show(const QString &text, const QColor &accentColor, int d
 
 	show();
 	raise();
-#ifdef __APPLE__
 	SetOverlayWindowBehavior(this);
-#endif
 	update();
 
 	hideTimer.start(durationMs);
@@ -64,14 +89,23 @@ void OSDNotification::paintEvent(QPaintEvent *)
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
 
+	const QColor background(24, 24, 28, translucent ? 235 : 255);
 	QRectF box = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
-	QPainterPath shape;
-	shape.addRoundedRect(box, cornerRadius, cornerRadius);
 
-	painter.fillPath(shape, QColor(24, 24, 28, 235));
+	if (translucent) {
+		QPainterPath shape;
+		shape.addRoundedRect(box, cornerRadius, cornerRadius);
+		painter.fillPath(shape, background);
+	} else {
+		painter.fillRect(rect(), background);
+		painter.setPen(QPen(accent, borderWidth));
+		painter.setBrush(Qt::NoBrush);
+		painter.drawRect(rect().adjusted(borderWidth / 2, borderWidth / 2, -borderWidth, -borderWidth));
+	}
 
-	painter.setClipPath(shape);
-	painter.fillRect(QRectF(box.left(), box.top(), accentBarWidth, box.height()), accent);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(accent);
+	painter.drawEllipse(QRectF(paddingX, box.center().y() - dotSize / 2.0, dotSize, dotSize));
 }
 
 QRect OSDNotification::TargetScreenGeometry() const

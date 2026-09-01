@@ -339,3 +339,8 @@ void PlayNotificationSound(const char *path)
 
 	QApplication::beep();
 }
+
+void SetOverlayWindowBehavior(QWidget *window)
+{
+	UNUSED_PARAMETER(window);
+}
