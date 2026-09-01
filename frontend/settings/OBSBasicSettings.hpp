@@ -21,8 +21,11 @@
 #include "ui_OBSBasicSettings.h"
 
 #include <utility/FFmpegShared.hpp>
+#include <utility/OutputNotification.hpp>
 
 #include <QPointer>
+
+#include <vector>
 
 #define VOLUME_METER_DECAY_FAST 23.53
 #define VOLUME_METER_DECAY_MEDIUM 11.76
@@ -198,7 +201,18 @@ private:
 
 	/* general */
 	void LoadLanguageList();
-	void BrowseReplaySound(QLineEdit *edit);
+	struct OutputNotifyRow {
+		OutputNotification notification;
+		const char *configPrefix;
+		QCheckBox *sound;
+		QCheckBox *overlay;
+		QLineEdit *soundFile;
+		QPushButton *browse;
+		QPushButton *test;
+	};
+	std::vector<OutputNotifyRow> outputNotifyRows;
+	void SetupOutputNotifyRows();
+	void BrowseNotifySound(QLineEdit *edit);
 	void LoadThemeList(bool firstLoad);
 	void LoadBranchesList();
 
@@ -359,12 +373,6 @@ private slots:
 	void on_simpleOutputBrowse_clicked();
 	void on_advOutRecPathBrowse_clicked();
 	void on_advOutFFPathBrowse_clicked();
-	void on_replayStartSoundBrowse_clicked();
-	void on_replayStopSoundBrowse_clicked();
-	void on_replaySavedSoundBrowse_clicked();
-	void on_replayStartTest_clicked();
-	void on_replayStopTest_clicked();
-	void on_replaySavedTest_clicked();
 	void on_advOutEncoder_currentIndexChanged();
 	void on_advOutRecEncoder_currentIndexChanged(int idx);
 	void on_advOutFFIgnoreCompat_stateChanged(int state);

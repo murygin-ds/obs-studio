@@ -1,4 +1,6 @@
 #include "BasicOutputHandler.hpp"
+
+#include <utility/platform.hpp>
 #include "AdvancedOutput.hpp"
 #include "SimpleOutput.hpp"
 
@@ -448,6 +450,82 @@ std::string BasicOutputHandler::GetRecordingFilename(const char *path, const cha
 	string dst = GetOutputFilename(path, container, noSpace, overwrite, format);
 	lastRecordingPath = dst;
 	return dst;
+}
+
+static std::string SanitizeFolderName(std::string name)
+{
+	for (const char *symbol : {"\xE2\x84\xA2", "\xC2\xAE"}) {
+		for (size_t pos = name.find(symbol); pos != std::string::npos; pos = name.find(symbol, pos)) {
+			name.erase(pos, strlen(symbol));
+		}
+	}
+
+	for (char &c : name) {
+		if (static_cast<unsigned char>(c) < 32 || strchr("<>:\"/\\|?*", c)) {
+			c = ' ';
+		}
+	}
+
+	size_t first = name.find_first_not_of(" .");
+	if (first == std::string::npos) {
+		return "";
+	}
+	name = name.substr(first, name.find_last_not_of(" .") - first + 1);
+
+	constexpr size_t maxLength = 64;
+	if (name.size() > maxLength) {
+		size_t cut = maxLength;
+		while (cut > 0 && (static_cast<unsigned char>(name[cut]) & 0xC0) == 0x80) {
+			cut--;
+		}
+		name.resize(cut);
+	}
+
+	return name;
+}
+
+std::string BasicOutputHandler::ResolveOutputDirectory(const char *path)
+{
+	std::string dir = path ? path : "";
+	if (dir.empty() || !config_get_bool(App()->GetUserConfig(), "BasicWindow", "OutputPerApplicationFolders")) {
+		return dir;
+	}
+
+	std::string folder = SanitizeFolderName(GetFullscreenApplicationName());
+	if (folder.empty()) {
+		const char *desktop =
+			config_get_string(App()->GetUserConfig(), "BasicWindow", "OutputDesktopFolderName");
+		folder = SanitizeFolderName(desktop ? desktop : "");
+	}
+	if (folder.empty()) {
+		return dir;
+	}
+
+	if (dir.back() != '/' && dir.back() != '\\') {
+		dir += '/';
+	}
+	dir += folder;
+
+	if (os_mkdirs(dir.c_str()) == MKDIR_ERROR) {
+		blog(LOG_WARNING, "Failed to create output directory '%s'", dir.c_str());
+		return path;
+	}
+
+	blog(LOG_INFO, "Output directory for active application: %s", dir.c_str());
+	return dir;
+}
+
+void BasicOutputHandler::UpdateReplayBufferDirectory()
+{
+	if (!replayBuffer || replayBufferDirectory.empty()) {
+		return;
+	}
+
+	std::string dir = ResolveOutputDirectory(replayBufferDirectory.c_str());
+
+	OBSDataAutoRelease settings = obs_data_create();
+	obs_data_set_string(settings, "directory", dir.c_str());
+	obs_output_update(replayBuffer, settings);
 }
 
 extern std::string DeserializeConfigText(const char *text);

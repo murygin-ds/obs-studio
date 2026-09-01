@@ -1449,7 +1449,7 @@ void OBSBasic::applicationShutdown() noexcept
 	delete shortcutFilter;
 	delete programOptions;
 	delete program;
-	delete replayBufferOverlay;
+	delete outputNotifyOverlay;
 
 	/* XXX: any obs data must be released before calling obs_shutdown.
 	 * currently, we can't automate this with C++ RAII because of the

@@ -51,6 +51,7 @@ target_link_libraries(
   PRIVATE
     crypt32
     winmm
+    version
     OBS::blake2
     OBS::updater-manifest
     OBS::w32-pthreads

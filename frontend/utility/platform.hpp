@@ -44,6 +44,10 @@ void PlayNotificationSound(const char *path);
 /* Keeps a notification popup above other applications and out of screen captures */
 void SetOverlayWindowBehavior(QWidget *window);
 
+/* Name of the application whose window currently covers the screen, empty when none.
+ * Only asks the OS about the foreground window; the process itself is never touched. */
+std::string GetFullscreenApplicationName();
+
 enum TaskbarOverlayStatus {
 	TaskbarOverlayStatusInactive,
 	TaskbarOverlayStatusActive,

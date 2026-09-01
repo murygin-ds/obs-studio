@@ -344,3 +344,8 @@ void SetOverlayWindowBehavior(QWidget *window)
 {
 	UNUSED_PARAMETER(window);
 }
+
+std::string GetFullscreenApplicationName()
+{
+	return "";
+}

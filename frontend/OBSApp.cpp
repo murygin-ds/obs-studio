@@ -367,16 +367,16 @@ void OBSApp::InitUserConfigDefaults()
 	config_set_default_bool(userConfig, "BasicWindow", "KeepRecordingWhenStreamStops", false);
 	config_set_default_bool(userConfig, "BasicWindow", "SysTrayEnabled", true);
 	config_set_default_bool(userConfig, "BasicWindow", "SysTrayWhenStarted", false);
-	config_set_default_bool(userConfig, "BasicWindow", "ReplayBufferNotifyStartSound", true);
-	config_set_default_bool(userConfig, "BasicWindow", "ReplayBufferNotifyStartOverlay", true);
-	config_set_default_bool(userConfig, "BasicWindow", "ReplayBufferNotifyStopSound", true);
-	config_set_default_bool(userConfig, "BasicWindow", "ReplayBufferNotifyStopOverlay", true);
-	config_set_default_bool(userConfig, "BasicWindow", "ReplayBufferNotifySavedSound", true);
-	config_set_default_bool(userConfig, "BasicWindow", "ReplayBufferNotifySavedOverlay", true);
-	config_set_default_string(userConfig, "BasicWindow", "ReplayBufferStartSound", "");
-	config_set_default_string(userConfig, "BasicWindow", "ReplayBufferStopSound", "");
-	config_set_default_string(userConfig, "BasicWindow", "ReplayBufferSavedSound", "");
-	config_set_default_int(userConfig, "BasicWindow", "ReplayBufferOverlayDuration", 3);
+	for (const char *event :
+	     {"ReplayBufferStart", "ReplayBufferStop", "ReplaySaved", "RecordingStart", "RecordingStop"}) {
+		std::string prefix = std::string("Notify") + event;
+		config_set_default_bool(userConfig, "BasicWindow", (prefix + "Sound").c_str(), true);
+		config_set_default_bool(userConfig, "BasicWindow", (prefix + "Overlay").c_str(), true);
+		config_set_default_string(userConfig, "BasicWindow", (prefix + "SoundFile").c_str(), "");
+	}
+	config_set_default_int(userConfig, "BasicWindow", "NotifyOverlayDuration", 3);
+	config_set_default_bool(userConfig, "BasicWindow", "OutputPerApplicationFolders", false);
+	config_set_default_string(userConfig, "BasicWindow", "OutputDesktopFolderName", "Desktop");
 	config_set_default_bool(userConfig, "BasicWindow", "SaveProjectors", false);
 	config_set_default_bool(userConfig, "BasicWindow", "ShowTransitions", true);
 	config_set_default_bool(userConfig, "BasicWindow", "ShowListboxToolbars", true);

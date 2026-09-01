@@ -178,6 +178,8 @@ void OBSBasic::RecordingStart()
 	OnActivate();
 
 	blog(LOG_INFO, RECORDING_START);
+
+	NotifyOutput(OutputNotification::RecordingStarted);
 }
 
 void OBSBasic::RecordingStop(int code, QString last_error)
@@ -190,6 +192,8 @@ void OBSBasic::RecordingStop(int code, QString last_error)
 	}
 
 	blog(LOG_INFO, RECORDING_STOP);
+
+	NotifyOutput(OutputNotification::RecordingStopped);
 
 	if (code == OBS_OUTPUT_UNSUPPORTED && isVisible()) {
 		OBSMessageBox::critical(this, QTStr("Output.RecordFail.Title"), QTStr("Output.RecordFail.Unsupported"));

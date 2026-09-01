@@ -32,6 +32,8 @@
 
 #include <QFile>
 #include <QHash>
+
+#include <vector>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
@@ -212,6 +214,102 @@ void PlayNotificationSound(const char *path)
 			SND_MEMORY | SND_ASYNC | SND_NODEFAULT)) {
 		blog(LOG_WARNING, "Failed to play notification sound '%s'", path);
 	}
+}
+
+static string GetExecutableDisplayName(const wstring &exePath)
+{
+	DWORD handle = 0;
+	DWORD size = GetFileVersionInfoSizeW(exePath.c_str(), &handle);
+	if (size) {
+		vector<BYTE> data(size);
+		struct {
+			WORD language;
+			WORD codepage;
+		} *translation = nullptr;
+		UINT len = 0;
+
+		if (GetFileVersionInfoW(exePath.c_str(), 0, size, data.data()) &&
+		    VerQueryValueW(data.data(), L"\\VarFileInfo\\Translation", (LPVOID *)&translation, &len) &&
+		    len >= sizeof(*translation)) {
+			for (const wchar_t *key : {L"FileDescription", L"ProductName"}) {
+				wchar_t query[128];
+				swprintf_s(query, L"\\StringFileInfo\\%04x%04x\\%ls", translation->language,
+					   translation->codepage, key);
+
+				wchar_t *value = nullptr;
+				if (VerQueryValueW(data.data(), query, (LPVOID *)&value, &len) && value && *value) {
+					return QString::fromWCharArray(value).toUtf8().constData();
+				}
+			}
+		}
+	}
+
+	size_t slash = exePath.find_last_of(L"\\/");
+	wstring base = slash == wstring::npos ? exePath : exePath.substr(slash + 1);
+	size_t dot = base.find_last_of(L'.');
+	if (dot != wstring::npos) {
+		base.resize(dot);
+	}
+	return QString::fromWCharArray(base.c_str()).toUtf8().constData();
+}
+
+std::string GetFullscreenApplicationName()
+{
+	HWND hwnd = GetForegroundWindow();
+	if (!hwnd) {
+		return "";
+	}
+
+	DWORD pid = 0;
+	GetWindowThreadProcessId(hwnd, &pid);
+	if (!pid || pid == GetCurrentProcessId()) {
+		return "";
+	}
+
+	wchar_t className[64] = {};
+	GetClassNameW(hwnd, className, _countof(className));
+	if (!wcscmp(className, L"Progman") || !wcscmp(className, L"WorkerW")) {
+		return "";
+	}
+
+	RECT windowRect = {};
+	MONITORINFO monitor = {sizeof(monitor)};
+	bool coversMonitor = GetWindowRect(hwnd, &windowRect) &&
+			     GetMonitorInfoW(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &monitor) &&
+			     windowRect.left <= monitor.rcMonitor.left && windowRect.top <= monitor.rcMonitor.top &&
+			     windowRect.right >= monitor.rcMonitor.right &&
+			     windowRect.bottom >= monitor.rcMonitor.bottom;
+
+	QUERY_USER_NOTIFICATION_STATE state = QUNS_ACCEPTS_NOTIFICATIONS;
+	bool fullscreenState = SUCCEEDED(SHQueryUserNotificationState(&state)) &&
+			       (state == QUNS_BUSY || state == QUNS_RUNNING_D3D_FULL_SCREEN);
+
+	if (!coversMonitor && !fullscreenState) {
+		return "";
+	}
+
+	/* Only a limited-information handle is opened to read the executable
+	 * path; the process memory is never accessed, which keeps anti-cheat
+	 * software happy. */
+	string name;
+	HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+	if (process) {
+		wchar_t exePath[MAX_PATH] = {};
+		DWORD len = _countof(exePath);
+		if (QueryFullProcessImageNameW(process, 0, exePath, &len)) {
+			name = GetExecutableDisplayName(exePath);
+		}
+		CloseHandle(process);
+	}
+
+	if (name.empty()) {
+		wchar_t title[256] = {};
+		if (GetWindowTextW(hwnd, title, _countof(title)) > 0) {
+			name = QString::fromWCharArray(title).toUtf8().constData();
+		}
+	}
+
+	return name;
 }
 
 void SetOverlayWindowBehavior(QWidget *window)

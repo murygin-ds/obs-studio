@@ -855,6 +855,7 @@ bool SimpleOutput::ConfigureRecording(bool updateReplayBuffer)
 	if (updateReplayBuffer) {
 		f = GetFormatString(filenameFormat, rbPrefix, rbSuffix);
 		string ext = GetFormatExt(format);
+		replayBufferDirectory = path;
 		obs_data_set_string(settings, "directory", path);
 		obs_data_set_string(settings, "format", f.c_str());
 		obs_data_set_string(settings, "extension", ext.c_str());
@@ -863,8 +864,9 @@ bool SimpleOutput::ConfigureRecording(bool updateReplayBuffer)
 		obs_data_set_int(settings, "max_size_mb", usingRecordingPreset ? rbSize : 0);
 	} else {
 		f = GetFormatString(filenameFormat, nullptr, nullptr);
-		string strPath = GetRecordingFilename(path, ffmpegOutput ? "avi" : format, noSpace, overwriteIfExists,
-						      f.c_str(), ffmpegOutput);
+		string dir = ResolveOutputDirectory(path);
+		string strPath = GetRecordingFilename(dir.c_str(), ffmpegOutput ? "avi" : format, noSpace,
+						      overwriteIfExists, f.c_str(), ffmpegOutput);
 		obs_data_set_string(settings, ffmpegOutput ? "url" : "path", strPath.c_str());
 		if (ffmpegOutput) {
 			obs_output_set_mixers(fileOutput, tracks);

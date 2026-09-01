@@ -826,8 +826,9 @@ bool AdvancedOutput::StartRecording()
 					  ffmpegRecording ? "FFFileNameWithoutSpace" : "RecFileNameWithoutSpace");
 		splitFile = config_get_bool(main->Config(), "AdvOut", "RecSplitFile");
 
-		string strPath = GetRecordingFilename(path, recFormat, noSpace, overwriteIfExists, filenameFormat,
-						      ffmpegRecording);
+		string dir = ResolveOutputDirectory(path);
+		string strPath = GetRecordingFilename(dir.c_str(), recFormat, noSpace, overwriteIfExists,
+						      filenameFormat, ffmpegRecording);
 
 		OBSDataAutoRelease settings = obs_data_create();
 		obs_data_set_string(settings, ffmpegRecording ? "url" : "path", strPath.c_str());
@@ -841,7 +842,7 @@ bool AdvancedOutput::StartRecording()
 						? config_get_int(main->Config(), "AdvOut", "RecSplitFileSize")
 						: 0;
 			string ext = GetFormatExt(recFormat);
-			obs_data_set_string(settings, "directory", path);
+			obs_data_set_string(settings, "directory", dir.c_str());
 			obs_data_set_string(settings, "format", filenameFormat);
 			obs_data_set_string(settings, "extension", ext.c_str());
 			obs_data_set_bool(settings, "allow_spaces", !noSpace);
@@ -912,6 +913,7 @@ bool AdvancedOutput::StartReplayBuffer()
 
 		OBSDataAutoRelease settings = obs_data_create();
 
+		replayBufferDirectory = path;
 		obs_data_set_string(settings, "directory", path);
 		obs_data_set_string(settings, "format", f.c_str());
 		obs_data_set_string(settings, "extension", ext.c_str());

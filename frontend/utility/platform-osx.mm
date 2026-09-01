@@ -148,6 +148,54 @@ void SetOverlayWindowBehavior(QWidget *window)
     nsWindow.sharingType = NSWindowSharingNone;
 }
 
+std::string GetFullscreenApplicationName()
+{
+    NSRunningApplication *app = NSWorkspace.sharedWorkspace.frontmostApplication;
+    if (!app || app.processIdentifier == getpid()) {
+        return "";
+    }
+
+    bool fullscreen = false;
+    CFArrayRef windows = CGWindowListCopyWindowInfo(
+        kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+    if (windows) {
+        /* Window bounds use a top-left origin on the main display, NSScreen frames a bottom-left one */
+        CGFloat mainHeight = NSScreen.screens.firstObject.frame.size.height;
+
+        for (NSDictionary *info in (__bridge NSArray *) windows) {
+            if ([info[(id) kCGWindowOwnerPID] intValue] != app.processIdentifier ||
+                [info[(id) kCGWindowLayer] intValue] != 0) {
+                continue;
+            }
+
+            CGRect bounds;
+            if (!CGRectMakeWithDictionaryRepresentation((__bridge CFDictionaryRef) info[(id) kCGWindowBounds],
+                                                        &bounds)) {
+                continue;
+            }
+
+            for (NSScreen *screen in NSScreen.screens) {
+                NSRect frame = screen.frame;
+                CGRect screenBounds = CGRectMake(frame.origin.x, mainHeight - frame.origin.y - frame.size.height,
+                                                 frame.size.width, frame.size.height);
+                if (CGRectContainsRect(bounds, screenBounds)) {
+                    fullscreen = true;
+                    break;
+                }
+            }
+            if (fullscreen) {
+                break;
+            }
+        }
+        CFRelease(windows);
+    }
+
+    if (!fullscreen || !app.localizedName) {
+        return "";
+    }
+    return app.localizedName.UTF8String;
+}
+
 void PlayNotificationSound(const char *path)
 {
     static NSSound *currentSound;

@@ -424,22 +424,53 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="7" column="1">
+                    <widget class="QCheckBox" name="perAppFolders">
+                     <property name="text">
+                      <string>Basic.Settings.General.PerApplicationFolders</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="1">
+                    <layout class="QHBoxLayout" name="perAppDesktopFolderLayout">
+                     <item>
+                      <widget class="QLabel" name="perAppDesktopFolderLabel">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="text">
+                        <string>Basic.Settings.General.PerApplicationFolders.Desktop</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="perAppDesktopFolder">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="placeholderText">
+                        <string notr="true">Desktop</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
                   </layout>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QGroupBox" name="replayBufferNotifyGroupBox">
+                 <widget class="QGroupBox" name="outputNotifyGroupBox">
                   <property name="title">
-                   <string>Basic.Settings.General.ReplayBufferNotify</string>
+                   <string>Basic.Settings.General.OutputNotify</string>
                   </property>
-                  <layout class="QGridLayout" name="replayBufferNotifyLayout" columnstretch="0,0,0,1,0">
+                  <layout class="QGridLayout" name="outputNotifyLayout" columnstretch="0,0,0,1,0">
                    <property name="topMargin">
                     <number>2</number>
                    </property>
                    <item row="0" column="1">
-                    <widget class="QLabel" name="replayNotifySoundHeader">
+                    <widget class="QLabel" name="notifySoundHeader">
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Sound</string>
+                      <string>Basic.Settings.General.OutputNotify.Sound</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -447,9 +478,9 @@
                     </widget>
                    </item>
                    <item row="0" column="2">
-                    <widget class="QLabel" name="replayNotifyOverlayHeader">
+                    <widget class="QLabel" name="notifyOverlayHeader">
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Overlay</string>
+                      <string>Basic.Settings.General.OutputNotify.Overlay</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -457,9 +488,9 @@
                     </widget>
                    </item>
                    <item row="0" column="3">
-                    <widget class="QLabel" name="replayNotifyFileHeader">
+                    <widget class="QLabel" name="notifyFileHeader">
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.SoundFile</string>
+                      <string>Basic.Settings.General.OutputNotify.SoundFile</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -467,7 +498,7 @@
                     </widget>
                    </item>
                    <item row="1" column="0">
-                    <widget class="QLabel" name="replayNotifyStartLabel">
+                    <widget class="QLabel" name="notifyRbStartLabel">
                      <property name="minimumSize">
                       <size>
                        <width>170</width>
@@ -475,7 +506,7 @@
                       </size>
                      </property>
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Started</string>
+                      <string>Basic.Settings.General.OutputNotify.ReplayBufferStarted</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -483,33 +514,33 @@
                     </widget>
                    </item>
                    <item row="1" column="1">
-                    <widget class="QCheckBox" name="replayNotifyStartSound">
+                    <widget class="QCheckBox" name="notifyRbStartSound">
                      <property name="text">
                       <string notr="true"/>
                      </property>
                     </widget>
                    </item>
                    <item row="1" column="2">
-                    <widget class="QCheckBox" name="replayNotifyStartOverlay">
+                    <widget class="QCheckBox" name="notifyRbStartOverlay">
                      <property name="text">
                       <string notr="true"/>
                      </property>
                     </widget>
                    </item>
                    <item row="1" column="3">
-                    <layout class="QHBoxLayout" name="replayStartSoundLayout">
+                    <layout class="QHBoxLayout" name="notifyRbStartLayout">
                      <item>
-                      <widget class="QLineEdit" name="replayStartSound">
+                      <widget class="QLineEdit" name="notifyRbStartSoundFile">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
                        <property name="placeholderText">
-                        <string>Basic.Settings.General.ReplayBufferNotify.DefaultSound</string>
+                        <string>Basic.Settings.General.OutputNotify.DefaultSound</string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="replayStartSoundBrowse">
+                      <widget class="QPushButton" name="notifyRbStartBrowse">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
@@ -521,14 +552,14 @@
                     </layout>
                    </item>
                    <item row="1" column="4">
-                    <widget class="QPushButton" name="replayStartTest">
+                    <widget class="QPushButton" name="notifyRbStartTest">
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Test</string>
+                      <string>Basic.Settings.General.OutputNotify.Test</string>
                      </property>
                     </widget>
                    </item>
                    <item row="2" column="0">
-                    <widget class="QLabel" name="replayNotifyStopLabel">
+                    <widget class="QLabel" name="notifyRbStopLabel">
                      <property name="minimumSize">
                       <size>
                        <width>170</width>
@@ -536,7 +567,7 @@
                       </size>
                      </property>
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Stopped</string>
+                      <string>Basic.Settings.General.OutputNotify.ReplayBufferStopped</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -544,33 +575,33 @@
                     </widget>
                    </item>
                    <item row="2" column="1">
-                    <widget class="QCheckBox" name="replayNotifyStopSound">
+                    <widget class="QCheckBox" name="notifyRbStopSound">
                      <property name="text">
                       <string notr="true"/>
                      </property>
                     </widget>
                    </item>
                    <item row="2" column="2">
-                    <widget class="QCheckBox" name="replayNotifyStopOverlay">
+                    <widget class="QCheckBox" name="notifyRbStopOverlay">
                      <property name="text">
                       <string notr="true"/>
                      </property>
                     </widget>
                    </item>
                    <item row="2" column="3">
-                    <layout class="QHBoxLayout" name="replayStopSoundLayout">
+                    <layout class="QHBoxLayout" name="notifyRbStopLayout">
                      <item>
-                      <widget class="QLineEdit" name="replayStopSound">
+                      <widget class="QLineEdit" name="notifyRbStopSoundFile">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
                        <property name="placeholderText">
-                        <string>Basic.Settings.General.ReplayBufferNotify.DefaultSound</string>
+                        <string>Basic.Settings.General.OutputNotify.DefaultSound</string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="replayStopSoundBrowse">
+                      <widget class="QPushButton" name="notifyRbStopBrowse">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
@@ -582,14 +613,14 @@
                     </layout>
                    </item>
                    <item row="2" column="4">
-                    <widget class="QPushButton" name="replayStopTest">
+                    <widget class="QPushButton" name="notifyRbStopTest">
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Test</string>
+                      <string>Basic.Settings.General.OutputNotify.Test</string>
                      </property>
                     </widget>
                    </item>
                    <item row="3" column="0">
-                    <widget class="QLabel" name="replayNotifySavedLabel">
+                    <widget class="QLabel" name="notifyRbSavedLabel">
                      <property name="minimumSize">
                       <size>
                        <width>170</width>
@@ -597,7 +628,7 @@
                       </size>
                      </property>
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Saved</string>
+                      <string>Basic.Settings.General.OutputNotify.ReplaySaved</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -605,33 +636,33 @@
                     </widget>
                    </item>
                    <item row="3" column="1">
-                    <widget class="QCheckBox" name="replayNotifySavedSound">
+                    <widget class="QCheckBox" name="notifyRbSavedSound">
                      <property name="text">
                       <string notr="true"/>
                      </property>
                     </widget>
                    </item>
                    <item row="3" column="2">
-                    <widget class="QCheckBox" name="replayNotifySavedOverlay">
+                    <widget class="QCheckBox" name="notifyRbSavedOverlay">
                      <property name="text">
                       <string notr="true"/>
                      </property>
                     </widget>
                    </item>
                    <item row="3" column="3">
-                    <layout class="QHBoxLayout" name="replaySavedSoundLayout">
+                    <layout class="QHBoxLayout" name="notifyRbSavedLayout">
                      <item>
-                      <widget class="QLineEdit" name="replaySavedSound">
+                      <widget class="QLineEdit" name="notifyRbSavedSoundFile">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
                        <property name="placeholderText">
-                        <string>Basic.Settings.General.ReplayBufferNotify.DefaultSound</string>
+                        <string>Basic.Settings.General.OutputNotify.DefaultSound</string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="replaySavedSoundBrowse">
+                      <widget class="QPushButton" name="notifyRbSavedBrowse">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
@@ -643,14 +674,14 @@
                     </layout>
                    </item>
                    <item row="3" column="4">
-                    <widget class="QPushButton" name="replaySavedTest">
+                    <widget class="QPushButton" name="notifyRbSavedTest">
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Test</string>
+                      <string>Basic.Settings.General.OutputNotify.Test</string>
                      </property>
                     </widget>
                    </item>
                    <item row="4" column="0">
-                    <widget class="QLabel" name="replayOverlayDurationLabel">
+                    <widget class="QLabel" name="notifyRecStartLabel">
                      <property name="minimumSize">
                       <size>
                        <width>170</width>
@@ -658,17 +689,139 @@
                       </size>
                      </property>
                      <property name="text">
-                      <string>Basic.Settings.General.ReplayBufferNotify.Duration</string>
+                      <string>Basic.Settings.General.OutputNotify.RecordingStarted</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="1" colspan="4">
-                    <layout class="QHBoxLayout" name="replayOverlayDurationLayout">
+                   <item row="4" column="1">
+                    <widget class="QCheckBox" name="notifyRecStartSound">
+                     <property name="text">
+                      <string notr="true"/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="2">
+                    <widget class="QCheckBox" name="notifyRecStartOverlay">
+                     <property name="text">
+                      <string notr="true"/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="3">
+                    <layout class="QHBoxLayout" name="notifyRecStartLayout">
                      <item>
-                      <widget class="QSpinBox" name="replayOverlayDuration">
+                      <widget class="QLineEdit" name="notifyRecStartSoundFile">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="placeholderText">
+                        <string>Basic.Settings.General.OutputNotify.DefaultSound</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="notifyRecStartBrowse">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="text">
+                        <string>Browse</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item row="4" column="4">
+                    <widget class="QPushButton" name="notifyRecStartTest">
+                     <property name="text">
+                      <string>Basic.Settings.General.OutputNotify.Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="notifyRecStopLabel">
+                     <property name="minimumSize">
+                      <size>
+                       <width>170</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Basic.Settings.General.OutputNotify.RecordingStopped</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QCheckBox" name="notifyRecStopSound">
+                     <property name="text">
+                      <string notr="true"/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="2">
+                    <widget class="QCheckBox" name="notifyRecStopOverlay">
+                     <property name="text">
+                      <string notr="true"/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="3">
+                    <layout class="QHBoxLayout" name="notifyRecStopLayout">
+                     <item>
+                      <widget class="QLineEdit" name="notifyRecStopSoundFile">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="placeholderText">
+                        <string>Basic.Settings.General.OutputNotify.DefaultSound</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="notifyRecStopBrowse">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="text">
+                        <string>Browse</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item row="5" column="4">
+                    <widget class="QPushButton" name="notifyRecStopTest">
+                     <property name="text">
+                      <string>Basic.Settings.General.OutputNotify.Test</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="0">
+                    <widget class="QLabel" name="notifyOverlayDurationLabel">
+                     <property name="minimumSize">
+                      <size>
+                       <width>170</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Basic.Settings.General.OutputNotify.Duration</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1" colspan="4">
+                    <layout class="QHBoxLayout" name="notifyOverlayDurationLayout">
+                     <item>
+                      <widget class="QSpinBox" name="notifyOverlayDuration">
                        <property name="suffix">
                         <string notr="true"> s</string>
                        </property>
@@ -684,7 +837,7 @@
                       </widget>
                      </item>
                      <item>
-                      <spacer name="replayOverlayDurationSpacer">
+                      <spacer name="notifyOverlayDurationSpacer">
                        <property name="orientation">
                         <enum>Qt::Orientation::Horizontal</enum>
                        </property>

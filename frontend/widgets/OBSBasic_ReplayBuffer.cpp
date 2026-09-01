@@ -19,7 +19,6 @@
 
 #include "OBSBasic.hpp"
 
-#include <components/OSDNotification.hpp>
 #include <components/UIValidation.hpp>
 
 #include <qt-wrappers.hpp>
@@ -151,7 +150,7 @@ void OBSBasic::ReplayBufferStart()
 
 	blog(LOG_INFO, REPLAY_BUFFER_START);
 
-	NotifyReplayBuffer(ReplayBufferNotification::Started);
+	NotifyOutput(OutputNotification::ReplayBufferStarted);
 }
 
 void OBSBasic::ReplayBufferSave()
@@ -164,6 +163,8 @@ void OBSBasic::ReplayBufferSave()
 	}
 
 	OnEvent(OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVING);
+
+	outputHandler->UpdateReplayBufferDirectory();
 
 	calldata_t cd = {0};
 	proc_handler_t *ph = obs_output_get_proc_handler(outputHandler->replayBuffer);
@@ -191,7 +192,7 @@ void OBSBasic::ReplayBufferSaved()
 
 	OnEvent(OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVED);
 
-	NotifyReplayBuffer(ReplayBufferNotification::Saved);
+	NotifyOutput(OutputNotification::ReplaySaved);
 
 	AutoRemux(QT_UTF8(path.c_str()));
 }
@@ -210,7 +211,7 @@ void OBSBasic::ReplayBufferStop(int code)
 
 	blog(LOG_INFO, REPLAY_BUFFER_STOP);
 
-	NotifyReplayBuffer(ReplayBufferNotification::Stopped);
+	NotifyOutput(OutputNotification::ReplayBufferStopped);
 
 	if (code == OBS_OUTPUT_UNSUPPORTED && isVisible()) {
 		OBSMessageBox::critical(this, QTStr("Output.RecordFail.Title"), QTStr("Output.RecordFail.Unsupported"));
@@ -242,77 +243,4 @@ bool OBSBasic::ReplayBufferActive()
 		return false;
 	}
 	return outputHandler->ReplayBufferActive();
-}
-
-namespace {
-struct ReplayBufferNotifyInfo {
-	const char *name;
-	const char *configKey;
-	const char *defaultSound;
-	const char *text;
-	QColor accent;
-};
-
-const ReplayBufferNotifyInfo &GetReplayBufferNotifyInfo(OBSBasic::ReplayBufferNotification notification)
-{
-	static const ReplayBufferNotifyInfo infos[] = {
-		{"started", "Start", "sounds/replay-buffer-start.wav", "Basic.Main.ReplayBufferNotify.Started",
-		 QColor(64, 156, 255)},
-		{"stopped", "Stop", "sounds/replay-buffer-stop.wav", "Basic.Main.ReplayBufferNotify.Stopped",
-		 QColor(255, 149, 0)},
-		{"saved", "Saved", "sounds/replay-buffer-saved.wav", "Basic.Main.ReplayBufferNotify.Saved",
-		 QColor(52, 199, 89)},
-	};
-	return infos[static_cast<size_t>(notification)];
-}
-} // namespace
-
-void OBSBasic::NotifyReplayBuffer(ReplayBufferNotification notification)
-{
-	const ReplayBufferNotifyInfo &info = GetReplayBufferNotifyInfo(notification);
-	config_t *config = App()->GetUserConfig();
-
-	const std::string toggleKey = std::string("ReplayBufferNotify") + info.configKey;
-	const std::string pathKey = std::string("ReplayBuffer") + info.configKey + "Sound";
-
-	bool playSound = config_get_bool(config, "BasicWindow", (toggleKey + "Sound").c_str());
-	bool showOverlay = config_get_bool(config, "BasicWindow", (toggleKey + "Overlay").c_str());
-	const char *soundPath = config_get_string(config, "BasicWindow", pathKey.c_str());
-	int durationMs = static_cast<int>(config_get_int(config, "BasicWindow", "ReplayBufferOverlayDuration")) * 1000;
-
-	ShowReplayBufferNotification(notification, playSound, showOverlay, QT_UTF8(soundPath), durationMs);
-}
-
-void OBSBasic::ShowReplayBufferNotification(ReplayBufferNotification notification, bool playSound, bool showOverlay,
-					    const QString &soundPath, int overlayDurationMs)
-{
-	const ReplayBufferNotifyInfo &info = GetReplayBufferNotifyInfo(notification);
-
-	blog(LOG_INFO, "Replay buffer notification '%s': sound=%s, overlay=%s", info.name, playSound ? "on" : "off",
-	     showOverlay ? "on" : "off");
-
-	if (playSound) {
-		std::string path = QT_TO_UTF8(soundPath);
-
-		if (path.empty()) {
-			std::string bundled;
-			if (GetDataFilePath(info.defaultSound, bundled)) {
-				path = bundled;
-			} else {
-				blog(LOG_WARNING, "Replay buffer notification sound '%s' not found", info.defaultSound);
-			}
-		}
-
-		if (!path.empty()) {
-			PlayNotificationSound(path.c_str());
-		}
-	}
-
-	if (showOverlay) {
-		if (!replayBufferOverlay) {
-			replayBufferOverlay = new OSDNotification();
-		}
-		replayBufferOverlay->Show(QTStr(info.text), info.accent,
-					  overlayDurationMs < 1000 ? 1000 : overlayDurationMs);
-	}
 }

@@ -25,6 +25,7 @@
 #include <oauth/Auth.hpp>
 #include <utility/BasicOutputHandler.hpp>
 #include <utility/OBSCanvas.hpp>
+#include <utility/OutputNotification.hpp>
 #include <utility/PreviewProgramSizeObserver.hpp>
 #include <utility/VCamConfig.hpp>
 #include <utility/platform.hpp>
@@ -201,9 +202,6 @@ class OBSBasic : public OBSMainWindow {
 	Q_PROPERTY(QIcon groupIcon READ GetGroupIcon WRITE SetGroupIcon DESIGNABLE true)
 	Q_PROPERTY(QIcon sceneIcon READ GetSceneIcon WRITE SetSceneIcon DESIGNABLE true)
 	Q_PROPERTY(QIcon defaultIcon READ GetDefaultIcon WRITE SetDefaultIcon DESIGNABLE true)
-
-public:
-	enum class ReplayBufferNotification { Started, Stopped, Saved };
 	Q_PROPERTY(QIcon audioProcessOutputIcon READ GetAudioProcessOutputIcon WRITE SetAudioProcessOutputIcon
 			   DESIGNABLE true)
 
@@ -1047,13 +1045,13 @@ private:
 	bool replayBufferStopping = false;
 	std::string lastReplay;
 
-	QPointer<OSDNotification> replayBufferOverlay;
+	QPointer<OSDNotification> outputNotifyOverlay;
 
-	void NotifyReplayBuffer(ReplayBufferNotification notification);
+	void NotifyOutput(OutputNotification notification);
 
 public:
-	void ShowReplayBufferNotification(ReplayBufferNotification notification, bool playSound, bool showOverlay,
-					  const QString &soundPath, int overlayDurationMs);
+	void ShowOutputNotification(OutputNotification notification, bool playSound, bool showOverlay,
+				    const QString &soundPath, int overlayDurationMs);
 
 public slots:
 	void ShowReplayBufferPauseWarning();

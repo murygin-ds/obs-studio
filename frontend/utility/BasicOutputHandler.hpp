@@ -50,6 +50,7 @@ struct BasicOutputHandler {
 	std::string lastError;
 
 	std::string lastRecordingPath;
+	std::string replayBufferDirectory;
 
 	OBSSignal startRecording;
 	OBSSignal stopRecording;
@@ -84,6 +85,9 @@ struct BasicOutputHandler {
 	virtual bool StreamingActive() const = 0;
 	virtual bool RecordingActive() const = 0;
 	virtual bool ReplayBufferActive() const { return false; }
+
+	/* Points the replay buffer at the folder of the active application before a save */
+	void UpdateReplayBufferDirectory();
 	virtual bool VirtualCamActive() const;
 
 	virtual void Update() = 0;
@@ -101,6 +105,9 @@ struct BasicOutputHandler {
 
 protected:
 	void SetupAutoRemux(const char *&container);
+	/* Applies the per-application folder option to a base recording directory */
+	static std::string ResolveOutputDirectory(const char *path);
+
 	std::string GetRecordingFilename(const char *path, const char *container, bool noSpace, bool overwrite,
 					 const char *format, bool ffmpeg);
 
