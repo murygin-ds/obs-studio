@@ -817,6 +817,53 @@
                     </widget>
                    </item>
                    <item row="6" column="0">
+                    <widget class="QLabel" name="notifyReplaySavedTimingLabel">
+                     <property name="minimumSize">
+                      <size>
+                       <width>170</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Basic.Settings.General.OutputNotify.ReplaySavedTiming</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1" colspan="4">
+                    <layout class="QHBoxLayout" name="notifyReplaySavedTimingLayout">
+                     <item>
+                      <widget class="QComboBox" name="notifyReplaySavedTiming">
+                       <item>
+                        <property name="text">
+                         <string>Basic.Settings.General.OutputNotify.ReplaySavedTiming.Immediately</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Basic.Settings.General.OutputNotify.ReplaySavedTiming.AfterWrite</string>
+                        </property>
+                       </item>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="notifyReplaySavedTimingSpacer">
+                       <property name="orientation">
+                        <enum>Qt::Orientation::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item row="7" column="0">
                     <widget class="QLabel" name="notifyOverlayDurationLabel">
                      <property name="minimumSize">
                       <size>
@@ -832,7 +879,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="6" column="1" colspan="4">
+                   <item row="7" column="1" colspan="4">
                     <layout class="QHBoxLayout" name="notifyOverlayDurationLayout">
                      <item>
                       <widget class="QSpinBox" name="notifyOverlayDuration">

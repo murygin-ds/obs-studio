@@ -375,6 +375,7 @@ void OBSApp::InitUserConfigDefaults()
 		config_set_default_string(userConfig, "BasicWindow", (prefix + "SoundFile").c_str(), "");
 	}
 	config_set_default_int(userConfig, "BasicWindow", "NotifyOverlayDuration", 3);
+	config_set_default_bool(userConfig, "BasicWindow", "NotifyReplaySavedAfterWrite", true);
 	config_set_default_bool(userConfig, "BasicWindow", "OutputPerApplicationFolders", false);
 	config_set_default_string(userConfig, "BasicWindow", "OutputDesktopFolderName", "Desktop");
 	config_set_default_bool(userConfig, "BasicWindow", "StartReplayBufferOnLaunch", false);

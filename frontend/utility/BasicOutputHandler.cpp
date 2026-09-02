@@ -145,6 +145,12 @@ void OBSReplayBufferSaved(void *data, calldata_t * /* params */)
 	QMetaObject::invokeMethod(output->main, &OBSBasic::ReplayBufferSaved, Qt::QueuedConnection);
 }
 
+void OBSReplayBufferSaving(void *data, calldata_t * /* params */)
+{
+	BasicOutputHandler *output = static_cast<BasicOutputHandler *>(data);
+	QMetaObject::invokeMethod(output->main, &OBSBasic::ReplayBufferSaving, Qt::QueuedConnection);
+}
+
 static void OBSStartVirtualCam(void *data, calldata_t * /* params */)
 {
 	BasicOutputHandler *output = static_cast<BasicOutputHandler *>(data);

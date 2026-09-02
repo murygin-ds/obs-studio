@@ -172,6 +172,13 @@ void OBSBasic::ReplayBufferSave()
 	calldata_free(&cd);
 }
 
+void OBSBasic::ReplayBufferSaving()
+{
+	if (!config_get_bool(App()->GetUserConfig(), "BasicWindow", "NotifyReplaySavedAfterWrite")) {
+		NotifyOutput(OutputNotification::ReplaySaved);
+	}
+}
+
 void OBSBasic::ReplayBufferSaved()
 {
 	if (!outputHandler || !outputHandler->replayBuffer) {
@@ -192,7 +199,9 @@ void OBSBasic::ReplayBufferSaved()
 
 	OnEvent(OBS_FRONTEND_EVENT_REPLAY_BUFFER_SAVED);
 
-	NotifyOutput(OutputNotification::ReplaySaved);
+	if (config_get_bool(App()->GetUserConfig(), "BasicWindow", "NotifyReplaySavedAfterWrite")) {
+		NotifyOutput(OutputNotification::ReplaySaved);
+	}
 
 	AutoRemux(QT_UTF8(path.c_str()));
 }

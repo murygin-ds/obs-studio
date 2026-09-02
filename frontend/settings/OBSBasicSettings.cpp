@@ -374,6 +374,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	HookWidget(ui->perAppFolders,        CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->perAppDesktopFolder,  EDIT_CHANGED,   GENERAL_CHANGED);
 	HookWidget(ui->notifyOverlayDuration,SCROLL_CHANGED, GENERAL_CHANGED);
+	HookWidget(ui->notifyReplaySavedTiming,COMBO_CHANGED, GENERAL_CHANGED);
 	HookWidget(ui->systemTrayEnabled,    CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayWhenStarted,CHECK_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->systemTrayAlways,     CHECK_CHANGED,  GENERAL_CHANGED);
@@ -1352,6 +1353,8 @@ void OBSBasicSettings::LoadGeneralSettings()
 	}
 	ui->notifyOverlayDuration->setValue(
 		static_cast<int>(config_get_int(userConfig, "BasicWindow", "NotifyOverlayDuration")));
+	ui->notifyReplaySavedTiming->setCurrentIndex(
+		config_get_bool(userConfig, "BasicWindow", "NotifyReplaySavedAfterWrite") ? 1 : 0);
 
 	ui->perAppFolders->setChecked(config_get_bool(userConfig, "BasicWindow", "OutputPerApplicationFolders"));
 	ui->perAppDesktopFolder->setText(
@@ -3231,6 +3234,10 @@ void OBSBasicSettings::SaveGeneralSettings()
 	if (WidgetChanged(ui->notifyOverlayDuration)) {
 		config_set_int(App()->GetUserConfig(), "BasicWindow", "NotifyOverlayDuration",
 			       ui->notifyOverlayDuration->value());
+	}
+	if (WidgetChanged(ui->notifyReplaySavedTiming)) {
+		config_set_bool(App()->GetUserConfig(), "BasicWindow", "NotifyReplaySavedAfterWrite",
+				ui->notifyReplaySavedTiming->currentIndex() == 1);
 	}
 	if (WidgetChanged(ui->perAppFolders)) {
 		config_set_bool(App()->GetUserConfig(), "BasicWindow", "OutputPerApplicationFolders",
