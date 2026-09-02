@@ -37,23 +37,21 @@ bool NativeEventFilter::nativeEventFilter(const QByteArray &eventType, void *mes
 
 		switch (msg->message) {
 		case WM_QUERYENDSESSION:
-			if (msg->lParam & ENDSESSION_CRITICAL) {
-				main->saveAll();
-				return false;
+			/* Never veto the session end, even with active outputs. A veto
+			 * makes Windows terminate OBS as soon as the user proceeds,
+			 * which leaves the crash sentinel behind and triggers the safe
+			 * mode prompt on the next launch. Everything is saved here and
+			 * shut down properly in WM_ENDSESSION. */
+			main->saveAll();
+			if (result) {
+				*result = TRUE;
 			}
-
-			if (main->shouldPromptForClose()) {
-				if (result) {
-					*result = FALSE;
-				}
-				QMetaObject::invokeMethod(main, "close", Qt::QueuedConnection);
-				return true;
-			}
-
-			return false;
+			return true;
 		case WM_ENDSESSION:
 			if (msg->wParam == TRUE) {
-				// Session is ending, start closing the main window now with no checks or prompts.
+				/* The process may be killed once this returns, so drop the
+				 * sentinel before the potentially slow teardown. */
+				App()->clearCrashSentinel();
 				main->closeWindow();
 			}
 

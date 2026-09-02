@@ -146,6 +146,7 @@ public:
 
 	void AppInit();
 	void checkForUncleanShutdown();
+	void clearCrashSentinel();
 	bool OBSInit();
 
 	void UpdateHotkeyFocusSetting(bool reset = true);

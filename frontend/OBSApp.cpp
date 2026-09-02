@@ -1150,6 +1150,13 @@ void OBSApp::AppInit()
 	}
 }
 
+void OBSApp::clearCrashSentinel()
+{
+	if (crashHandler_) {
+		crashHandler_->applicationShutdownHandler();
+	}
+}
+
 void OBSApp::checkForUncleanShutdown()
 {
 	bool hasUncleanShutdown = crashHandler_->hasUncleanShutdown();
